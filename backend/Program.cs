@@ -61,7 +61,7 @@ host.Start();
 Console.WriteLine("🚀 API запущен на http://localhost:5000");
 Console.WriteLine("🤖 Telegram бот запущен!");
 
-app.Run("http://localhost:5000");
+app.Run("https://a08d132d3ef8.ngrok-free.app");
 
 // Класс для бота
 public class Host
