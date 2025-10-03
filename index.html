@@ -120,7 +120,12 @@
         // Загрузка товаров и активного заказа
         async function loadProducts() {
             try {
-                const response = await fetch(`${API_URL}/products`);
+                const response = await fetch(`${API_URL}/products`, {
+                    headers: {
+                        'ngrok-skip-browser-warning': 'true',
+                        'User-Agent': 'TelegramBot'
+                    }
+                });
                 const data = await response.json();
                 products = data.data;
                 renderProducts();
@@ -137,7 +142,12 @@
         async function loadActiveOrder() {
             try {
                 const userId = tg.initDataUnsafe.user?.id || 464350533;
-                const response = await fetch(`${API_URL}/orders/${userId}`);
+                const response = await fetch(`${API_URL}/orders/${userId}`, {
+                    headers: {
+                        'ngrok-skip-browser-warning': 'true',
+                        'User-Agent': 'TelegramBot'
+                    }
+                });
                 const data = await response.json();
                 
                 if (data.success && data.data.length > 0) {
@@ -183,6 +193,10 @@
         // Отрисовка товаров
         function renderProducts() {
             const container = document.getElementById('productsList');
+            if (products.length === 0) {
+                container.innerHTML = '<p class="col-span-2 text-center text-gray-500">Товаров пока нет</p>';
+                return;
+            }
             container.innerHTML = products.map(product => `
                 <div class="product-card border rounded-lg p-3 cursor-pointer" onclick="addToCart(${product.id})">
                     ${product.imageUrl ? `<img src="${product.imageUrl}" class="w-full h-32 object-cover rounded mb-2">` : '<div class="w-full h-32 bg-gray-200 rounded mb-2 flex items-center justify-center text-4xl">📦</div>'}
@@ -323,7 +337,11 @@
             try {
                 const response = await fetch(`${API_URL}/orders`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'ngrok-skip-browser-warning': 'true',
+                        'User-Agent': 'TelegramBot'
+                    },
                     body: JSON.stringify(orderData)
                 });
 
