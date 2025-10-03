@@ -7,101 +7,303 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body {
-            background: var(--tg-theme-bg-color, #fff);
-            color: var(--tg-theme-text-color, #000);
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
+        
+        body {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: #ffffff;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .gradient-bg {
+            background: linear-gradient(135deg, #ff6b35 0%, #ff8c42 100%);
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
         .cart-badge {
             position: fixed;
-            top: 10px;
-            right: 10px;
-            background: #FF6B6B;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #ff6b35 0%, #ff8c42 100%);
             color: white;
             border-radius: 50%;
-            width: 35px;
-            height: 35px;
+            width: 50px;
+            height: 50px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: bold;
             cursor: pointer;
             z-index: 1000;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 8px 32px rgba(255, 107, 53, 0.4);
+            transition: all 0.3s ease;
+            animation: pulse 2s infinite;
         }
+
+        .cart-badge:hover {
+            transform: scale(1.1);
+            box-shadow: 0 12px 48px rgba(255, 107, 53, 0.6);
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
         .product-card {
-            transition: transform 0.2s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            animation: slideInUp 0.5s ease-out;
+            position: relative;
+            overflow: hidden;
         }
+
+        .product-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(255, 107, 53, 0.3);
+        }
+
+        .product-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 107, 53, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .product-card:hover::before {
+            left: 100%;
+        }
+
         .product-card:active {
             transform: scale(0.98);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #ff6b35 0%, #ff8c42 100%);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn-primary:active::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 8px 32px rgba(255, 107, 53, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .order-banner {
+            animation: slideInUp 0.5s ease-out;
+            background: linear-gradient(135deg, rgba(255, 107, 53, 0.1) 0%, rgba(255, 140, 66, 0.1) 100%);
+            backdrop-filter: blur(10px);
+            border-left: 4px solid #ff6b35;
+        }
+
+        input, textarea {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #ff6b35;
+            box-shadow: 0 0 20px rgba(255, 107, 53, 0.3);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        input::placeholder, textarea::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        .screen-enter {
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #ff6b35;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .shine {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .shine::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                45deg,
+                transparent 30%,
+                rgba(255, 255, 255, 0.1) 50%,
+                transparent 70%
+            );
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+
+        .qty-btn {
+            background: rgba(255, 107, 53, 0.2);
+            transition: all 0.2s ease;
+        }
+
+        .qty-btn:hover {
+            background: rgba(255, 107, 53, 0.4);
+            transform: scale(1.1);
+        }
+
+        .qty-btn:active {
+            transform: scale(0.95);
         }
     </style>
 </head>
 <body class="p-4 pb-20">
     <!-- Корзина бейдж -->
     <div id="cartBadge" class="cart-badge" onclick="showCart()" style="display: none;">
-        <span id="cartCount">0</span>
+        <span id="cartCount" class="text-xl">0</span>
     </div>
 
     <!-- Плашка активного заказа -->
-    <div id="activeOrderBanner" style="display: none;" class="mb-4 bg-blue-50 border-l-4 border-blue-500 p-4 rounded-lg">
+    <div id="activeOrderBanner" style="display: none;" class="order-banner mb-6 p-4 rounded-xl">
         <div class="flex justify-between items-start">
             <div class="flex-1">
-                <h3 class="font-bold text-blue-900">📦 Активный заказ #<span id="orderNumber"></span></h3>
-                <p class="text-sm text-blue-700 mt-1">Статус: <span id="orderStatus" class="font-medium"></span></p>
-                <p class="text-sm text-blue-600 mt-1">Сумма: <span id="orderTotal"></span>₽</p>
+                <h3 class="font-bold text-lg">📦 Активный заказ #<span id="orderNumber"></span></h3>
+                <p class="text-sm text-gray-300 mt-2">Статус: <span id="orderStatus" class="font-medium text-orange-400"></span></p>
+                <p class="text-sm text-gray-300 mt-1">Сумма: <span id="orderTotal" class="font-bold text-orange-400"></span>₽</p>
             </div>
-            <button onclick="closeOrderBanner()" class="text-blue-500 text-xl">×</button>
+            <button onclick="closeOrderBanner()" class="text-white text-2xl hover:text-orange-400 transition-colors">×</button>
         </div>
     </div>
 
     <!-- Главный экран - товары -->
-    <div id="productsScreen">
-        <h1 class="text-2xl font-bold mb-4">🛍️ Магазин</h1>
+    <div id="productsScreen" class="screen-enter">
+        <div class="mb-6">
+            <h1 class="text-3xl font-bold mb-2 bg-gradient-to-r from-orange-400 to-orange-600 bg-clip-text text-transparent">
+                🛍️ Магазин
+            </h1>
+            <p class="text-gray-400">Выбери товары и добавь в корзину</p>
+        </div>
         <div id="productsList" class="grid grid-cols-2 gap-4">
-            <!-- Товары загрузятся сюда -->
+            <div class="col-span-2 text-center py-8">
+                <div class="loading mx-auto mb-3"></div>
+                <p class="text-gray-400">Загрузка товаров...</p>
+            </div>
         </div>
     </div>
 
     <!-- Экран корзины -->
-    <div id="cartScreen" style="display: none;">
-        <div class="flex items-center justify-between mb-4">
-            <h1 class="text-2xl font-bold">🛒 Корзина</h1>
-            <button onclick="showProducts()" class="text-blue-500">← Назад</button>
+    <div id="cartScreen" style="display: none;" class="screen-enter">
+        <div class="flex items-center justify-between mb-6">
+            <h1 class="text-3xl font-bold bg-gradient-to-r from-orange-400 to-orange-600 bg-clip-text text-transparent">
+                🛒 Корзина
+            </h1>
+            <button onclick="showProducts()" class="text-orange-400 hover:text-orange-300 transition-colors font-medium">
+                ← Назад
+            </button>
         </div>
-        <div id="cartItems" class="space-y-3 mb-4"></div>
-        <div class="border-t pt-4">
-            <div class="flex justify-between text-xl font-bold mb-4">
+        <div id="cartItems" class="space-y-4 mb-6"></div>
+        <div class="glass rounded-xl p-6 border border-white/10">
+            <div class="flex justify-between text-2xl font-bold mb-6">
                 <span>Итого:</span>
-                <span id="totalPrice">0₽</span>
+                <span id="totalPrice" class="text-orange-400">0₽</span>
             </div>
-            <button onclick="showCheckout()" class="w-full bg-blue-500 text-white py-3 rounded-lg font-bold">
-                Оформить заказ
+            <button onclick="showCheckout()" class="btn-primary w-full text-white py-4 rounded-xl font-bold text-lg shadow-lg">
+                Оформить заказ 🚀
             </button>
         </div>
     </div>
 
     <!-- Экран оформления -->
-    <div id="checkoutScreen" style="display: none;">
-        <div class="flex items-center justify-between mb-4">
-            <h1 class="text-2xl font-bold">📝 Оформление</h1>
-            <button onclick="showCart()" class="text-blue-500">← Назад</button>
+    <div id="checkoutScreen" style="display: none;" class="screen-enter">
+        <div class="flex items-center justify-between mb-6">
+            <h1 class="text-3xl font-bold bg-gradient-to-r from-orange-400 to-orange-600 bg-clip-text text-transparent">
+                📝 Оформление
+            </h1>
+            <button onclick="showCart()" class="text-orange-400 hover:text-orange-300 transition-colors font-medium">
+                ← Назад
+            </button>
         </div>
-        <form id="checkoutForm" class="space-y-4">
+        <form id="checkoutForm" class="space-y-5">
             <div>
-                <label class="block mb-2 font-medium">📞 Телефон</label>
-                <input type="tel" id="phone" required class="w-full border rounded-lg p-3" placeholder="+7 (999) 123-45-67">
+                <label class="block mb-2 font-medium text-gray-300">📞 Телефон</label>
+                <input type="tel" id="phone" required class="w-full rounded-xl p-4 text-lg" placeholder="+7 (999) 123-45-67">
             </div>
             <div>
-                <label class="block mb-2 font-medium">📍 Адрес доставки</label>
-                <textarea id="address" required class="w-full border rounded-lg p-3" rows="3" placeholder="Улица, дом, квартира"></textarea>
+                <label class="block mb-2 font-medium text-gray-300">📍 Адрес доставки</label>
+                <textarea id="address" required class="w-full rounded-xl p-4" rows="3" placeholder="Улица, дом, квартира"></textarea>
             </div>
             <div>
-                <label class="block mb-2 font-medium">💬 Комментарий (необязательно)</label>
-                <textarea id="comment" class="w-full border rounded-lg p-3" rows="2" placeholder="Ваши пожелания"></textarea>
+                <label class="block mb-2 font-medium text-gray-300">💬 Комментарий (необязательно)</label>
+                <textarea id="comment" class="w-full rounded-xl p-4" rows="2" placeholder="Ваши пожелания"></textarea>
             </div>
-            <button type="submit" class="w-full bg-green-500 text-white py-3 rounded-lg font-bold">
-                Отправить заказ
+            <button type="submit" class="btn-primary w-full text-white py-4 rounded-xl font-bold text-lg shadow-lg shine">
+                Отправить заказ 🎉
             </button>
         </form>
     </div>
@@ -113,11 +315,9 @@
         let products = [];
         let activeOrder = null;
 
-        // Инициализация
         tg.ready();
         tg.expand();
 
-        // Загрузка товаров и активного заказа
         async function loadProducts() {
             try {
                 const response = await fetch(`${API_URL}/products`, {
@@ -129,16 +329,13 @@
                 const data = await response.json();
                 products = data.data;
                 renderProducts();
-                
-                // Загружаем активный заказ пользователя
                 await loadActiveOrder();
             } catch (error) {
                 console.error('Ошибка загрузки товаров:', error);
-                document.getElementById('productsList').innerHTML = '<p class="col-span-2 text-center text-red-500">Ошибка загрузки товаров</p>';
+                document.getElementById('productsList').innerHTML = '<p class="col-span-2 text-center text-red-400">Ошибка загрузки товаров</p>';
             }
         }
 
-        // Загрузка активного заказа
         async function loadActiveOrder() {
             try {
                 const userId = tg.initDataUnsafe.user?.id || 464350533;
@@ -151,9 +348,7 @@
                 const data = await response.json();
                 
                 if (data.success && data.data.length > 0) {
-                    // Берём последний заказ который не completed и не cancelled
                     activeOrder = data.data.find(o => o.status !== 'completed' && o.status !== 'cancelled');
-                    
                     if (activeOrder) {
                         showActiveOrderBanner(activeOrder);
                     }
@@ -163,7 +358,6 @@
             }
         }
 
-        // Показать плашку активного заказа
         function showActiveOrderBanner(order) {
             const banner = document.getElementById('activeOrderBanner');
             document.getElementById('orderNumber').textContent = order.id;
@@ -172,12 +366,10 @@
             banner.style.display = 'block';
         }
 
-        // Закрыть плашку
         function closeOrderBanner() {
             document.getElementById('activeOrderBanner').style.display = 'none';
         }
 
-        // Текст статуса
         function getStatusText(status) {
             const statuses = {
                 'pending': '⏳ Ожидает оплаты',
@@ -190,27 +382,25 @@
             return statuses[status] || status;
         }
 
-        // Отрисовка товаров
         function renderProducts() {
             const container = document.getElementById('productsList');
             if (products.length === 0) {
-                container.innerHTML = '<p class="col-span-2 text-center text-gray-500">Товаров пока нет</p>';
+                container.innerHTML = '<p class="col-span-2 text-center text-gray-400 py-8">Товаров пока нет</p>';
                 return;
             }
-            container.innerHTML = products.map(product => `
-                <div class="product-card border rounded-lg p-3 cursor-pointer" onclick="addToCart(${product.id})">
-                    ${product.imageUrl ? `<img src="${product.imageUrl}" class="w-full h-32 object-cover rounded mb-2">` : '<div class="w-full h-32 bg-gray-200 rounded mb-2 flex items-center justify-center text-4xl">📦</div>'}
-                    <h3 class="font-bold">${product.name}</h3>
-                    <p class="text-sm text-gray-600 mb-2">${product.description || ''}</p>
+            container.innerHTML = products.map((product, index) => `
+                <div class="product-card glass rounded-xl p-4 cursor-pointer" onclick="addToCart(${product.id})" style="animation-delay: ${index * 0.1}s">
+                    ${product.imageUrl ? `<img src="${product.imageUrl}" class="w-full h-40 object-cover rounded-lg mb-3">` : '<div class="w-full h-40 bg-gradient-to-br from-orange-500/20 to-orange-600/20 rounded-lg mb-3 flex items-center justify-center text-5xl">📦</div>'}
+                    <h3 class="font-bold text-lg mb-1">${product.name}</h3>
+                    <p class="text-sm text-gray-400 mb-3 line-clamp-2">${product.description || ''}</p>
                     <div class="flex justify-between items-center">
-                        <span class="text-lg font-bold">${product.price}₽</span>
-                        <span class="text-sm text-gray-500">В наличии: ${product.stock}</span>
+                        <span class="text-xl font-bold text-orange-400">${product.price}₽</span>
+                        <span class="text-xs text-gray-500 bg-white/5 px-2 py-1 rounded-full">Осталось: ${product.stock}</span>
                     </div>
                 </div>
             `).join('');
         }
 
-        // Добавить в корзину
         function addToCart(productId) {
             const product = products.find(p => p.id === productId);
             const cartItem = cart.find(item => item.productId === productId);
@@ -227,14 +417,12 @@
             tg.HapticFeedback.impactOccurred('light');
         }
 
-        // Обновить бейдж корзины
         function updateCartBadge() {
             const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
             document.getElementById('cartCount').textContent = totalItems;
             document.getElementById('cartBadge').style.display = totalItems > 0 ? 'flex' : 'none';
         }
 
-        // Показать корзину
         function showCart() {
             if (cart.length === 0) {
                 tg.showAlert('Корзина пуста');
@@ -246,7 +434,6 @@
             renderCart();
         }
 
-        // Отрисовка корзины
         function renderCart() {
             const container = document.getElementById('cartItems');
             let total = 0;
@@ -255,16 +442,16 @@
                 const subtotal = item.product.price * item.quantity;
                 total += subtotal;
                 return `
-                    <div class="flex items-center justify-between border-b pb-3">
+                    <div class="glass rounded-xl p-4 flex items-center justify-between">
                         <div class="flex-1">
-                            <h3 class="font-bold">${item.product.name}</h3>
-                            <p class="text-sm text-gray-600">${item.product.price}₽ x ${item.quantity}</p>
+                            <h3 class="font-bold text-lg">${item.product.name}</h3>
+                            <p class="text-sm text-gray-400 mt-1">${item.product.price}₽ × ${item.quantity} = ${subtotal}₽</p>
                         </div>
-                        <div class="flex items-center gap-2">
-                            <button onclick="changeQuantity(${item.productId}, -1)" class="bg-gray-200 w-8 h-8 rounded">−</button>
-                            <span class="font-bold">${item.quantity}</span>
-                            <button onclick="changeQuantity(${item.productId}, 1)" class="bg-gray-200 w-8 h-8 rounded">+</button>
-                            <button onclick="removeFromCart(${item.productId})" class="text-red-500 ml-2">🗑️</button>
+                        <div class="flex items-center gap-3">
+                            <button onclick="changeQuantity(${item.productId}, -1)" class="qty-btn w-10 h-10 rounded-lg font-bold text-white">−</button>
+                            <span class="font-bold text-xl text-orange-400 w-8 text-center">${item.quantity}</span>
+                            <button onclick="changeQuantity(${item.productId}, 1)" class="qty-btn w-10 h-10 rounded-lg font-bold text-white">+</button>
+                            <button onclick="removeFromCart(${item.productId})" class="text-red-400 ml-2 text-2xl hover:scale-110 transition-transform">🗑️</button>
                         </div>
                     </div>
                 `;
@@ -273,7 +460,6 @@
             document.getElementById('totalPrice').textContent = `${total}₽`;
         }
 
-        // Изменить количество
         function changeQuantity(productId, delta) {
             const cartItem = cart.find(item => item.productId === productId);
             const product = products.find(p => p.id === productId);
@@ -291,7 +477,6 @@
             }
         }
 
-        // Удалить из корзины
         function removeFromCart(productId) {
             cart = cart.filter(item => item.productId !== productId);
             if (cart.length === 0) {
@@ -302,20 +487,17 @@
             updateCartBadge();
         }
 
-        // Показать товары
         function showProducts() {
             document.getElementById('productsScreen').style.display = 'block';
             document.getElementById('cartScreen').style.display = 'none';
             document.getElementById('checkoutScreen').style.display = 'none';
         }
 
-        // Показать оформление
         function showCheckout() {
             document.getElementById('cartScreen').style.display = 'none';
             document.getElementById('checkoutScreen').style.display = 'block';
         }
 
-        // Отправка заказа
         document.getElementById('checkoutForm').addEventListener('submit', async (e) => {
             e.preventDefault();
 
@@ -352,11 +534,9 @@
                     cart = [];
                     updateCartBadge();
                     
-                    // Показываем плашку нового заказа
                     activeOrder = result.data.order;
                     showActiveOrderBanner(activeOrder);
                     
-                    // Возвращаемся к товарам
                     setTimeout(() => {
                         showProducts();
                     }, 1500);
@@ -369,7 +549,6 @@
             }
         });
 
-        // Загружаем товары при старте
         loadProducts();
     </script>
 </body>
