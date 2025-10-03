@@ -109,7 +109,7 @@ public class Host
                     replyMarkup: new InlineKeyboardMarkup(
                         InlineKeyboardButton.WithWebApp(
                             "🛍️ Открыть магазин",
-                            new Telegram.Bot.Types.WebAppInfo("https://betepo4ek.github.io/testminiapphtml/") // <-- СЮДА ВСТАВИШЬ ССЫЛКУ НА ФРОНТ
+                            new Telegram.Bot.Types.WebAppInfo("https://betepo4ek.github.io/MarketEnot/") // <-- СЮДА ВСТАВИШЬ ССЫЛКУ НА ФРОНТ
                         )
                     )
                 );

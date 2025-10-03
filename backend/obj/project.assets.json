@@ -1051,11 +1051,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\TaskAndHabbits\\backend\\TaskAndHabbits.csproj",
+      "projectUniqueName": "C:\\TaskAndHabbits\\MarketEnot\\backend\\TaskAndHabbits.csproj",
       "projectName": "TaskAndHabbits",
-      "projectPath": "C:\\TaskAndHabbits\\backend\\TaskAndHabbits.csproj",
+      "projectPath": "C:\\TaskAndHabbits\\MarketEnot\\backend\\TaskAndHabbits.csproj",
       "packagesPath": "C:\\Users\\Klop\\.nuget\\packages\\",
-      "outputPath": "C:\\TaskAndHabbits\\backend\\obj\\",
+      "outputPath": "C:\\TaskAndHabbits\\MarketEnot\\backend\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "WkbrXTUh704=",
+  "dgSpecHash": "2rwgeUjJizg=",
   "success": true,
-  "projectFilePath": "C:\\TaskAndHabbits\\backend\\TaskAndHabbits.csproj",
+  "projectFilePath": "C:\\TaskAndHabbits\\MarketEnot\\backend\\TaskAndHabbits.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Klop\\.nuget\\packages\\dapper\\2.1.66\\dapper.2.1.66.nupkg.sha512",
     "C:\\Users\\Klop\\.nuget\\packages\\microsoft.extensions.apidescription.server\\6.0.5\\microsoft.extensions.apidescription.server.6.0.5.nupkg.sha512",
