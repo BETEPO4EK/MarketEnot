@@ -14,6 +14,13 @@
         <span id="cartCount" class="text-xl">0</span>
     </div>
 
+    <!-- Кнопка админки (только для админа) -->
+    <div id="adminButton" style="display: none;" class="fixed bottom-20 right-5 z-50">
+        <button onclick="toggleAdminPanel()" class="gradient-bg text-white w-14 h-14 rounded-full shadow-lg flex items-center justify-center text-2xl hover:scale-110 transition-transform">
+            ⚙️
+        </button>
+    </div>
+
     <!-- Плашка активного заказа -->
     <div id="activeOrderBanner" style="display: none;" class="order-banner mb-6 p-4 rounded-xl">
         <div class="flex justify-between items-start">
@@ -26,19 +33,46 @@
         </div>
     </div>
 
-    <!-- Главный экран - товары -->
-    <div id="productsScreen" class="screen-enter">
+    <!-- Главный экран с вкладками -->
+    <div id="mainScreen" class="screen-enter">
         <div class="mb-6">
             <h1 class="text-3xl font-bold mb-2 bg-gradient-to-r from-orange-400 to-orange-600 bg-clip-text text-transparent">
                 🛍️ Магазин
             </h1>
-            <p class="text-gray-400">Выбери товары и добавь в корзину</p>
         </div>
-        <div id="productsList" class="grid grid-cols-2 gap-4">
-            <div class="col-span-2 text-center py-8">
-                <div class="loading mx-auto mb-3"></div>
-                <p class="text-gray-400">Загрузка товаров...</p>
+
+        <!-- Вкладки -->
+        <div class="flex gap-2 mb-6">
+            <button onclick="showTab('all')" id="tabAll" class="tab-btn active flex-1 py-3 rounded-lg font-bold transition-all">
+                Ассортимент
+            </button>
+            <button onclick="showTab('categories')" id="tabCategories" class="tab-btn flex-1 py-3 rounded-lg font-bold transition-all">
+                Категории
+            </button>
+        </div>
+
+        <!-- Вкладка: Все товары -->
+        <div id="allProductsTab">
+            <div id="productsList" class="grid grid-cols-2 gap-4">
+                <div class="col-span-2 text-center py-8">
+                    <div class="loading mx-auto mb-3"></div>
+                    <p class="text-gray-400">Загрузка товаров...</p>
+                </div>
             </div>
+        </div>
+
+        <!-- Вкладка: Категории -->
+        <div id="categoriesTab" style="display: none;">
+            <div id="categoriesList" class="grid grid-cols-2 gap-4"></div>
+        </div>
+
+        <!-- Товары категории -->
+        <div id="categoryProductsView" style="display: none;">
+            <button onclick="backToCategories()" class="text-orange-400 hover:text-orange-300 mb-4 font-medium">
+                ← Назад к категориям
+            </button>
+            <h2 id="categoryTitle" class="text-2xl font-bold mb-4"></h2>
+            <div id="categoryProductsList" class="grid grid-cols-2 gap-4"></div>
         </div>
     </div>
 
@@ -48,7 +82,7 @@
             <h1 class="text-3xl font-bold bg-gradient-to-r from-orange-400 to-orange-600 bg-clip-text text-transparent">
                 🛒 Корзина
             </h1>
-            <button onclick="showProducts()" class="text-orange-400 hover:text-orange-300 transition-colors font-medium">
+            <button onclick="showMain()" class="text-orange-400 hover:text-orange-300 transition-colors font-medium">
                 ← Назад
             </button>
         </div>
@@ -92,6 +126,53 @@
             </button>
         </form>
     </div>
-    <script src="main.js" defer></script>
+
+    <!-- Админ-панель -->
+    <div id="adminPanel" style="display: none;" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 overflow-y-auto p-4">
+        <div class="glass rounded-xl p-6 max-w-lg mx-auto my-8">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-orange-400">⚙️ Админ-панель</h2>
+                <button onclick="toggleAdminPanel()" class="text-white text-3xl">×</button>
+            </div>
+
+            <!-- Вкладки админки -->
+            <div class="flex gap-2 mb-6">
+                <button onclick="showAdminTab('product')" id="adminTabProduct" class="admin-tab-btn active flex-1 py-2 rounded-lg text-sm font-bold">
+                    Товар
+                </button>
+                <button onclick="showAdminTab('category')" id="adminTabCategory" class="admin-tab-btn flex-1 py-2 rounded-lg text-sm font-bold">
+                    Категория
+                </button>
+            </div>
+
+            <!-- Форма добавления товара -->
+            <form id="addProductForm" class="space-y-4">
+                <h3 class="font-bold text-lg mb-3">Добавить товар</h3>
+                <input type="text" id="productName" required placeholder="Название" class="w-full rounded-lg p-3">
+                <textarea id="productDesc" placeholder="Описание" class="w-full rounded-lg p-3" rows="2"></textarea>
+                <input type="url" id="productImage" placeholder="URL изображения (необязательно)" class="w-full rounded-lg p-3">
+                <select id="productCategory" class="w-full rounded-lg p-3">
+                    <option value="">Без категории</option>
+                </select>
+                <input type="number" id="productPrice" required placeholder="Цена" class="w-full rounded-lg p-3" step="0.01">
+                <input type="number" id="productStock" required placeholder="Количество" class="w-full rounded-lg p-3">
+                <button type="submit" class="btn-primary w-full py-3 rounded-lg font-bold">
+                    Добавить товар
+                </button>
+            </form>
+
+            <!-- Форма добавления категории -->
+            <form id="addCategoryForm" class="space-y-4" style="display: none;">
+                <h3 class="font-bold text-lg mb-3">Добавить категорию</h3>
+                <input type="text" id="categoryName" required placeholder="Название категории" class="w-full rounded-lg p-3">
+                <textarea id="categoryDesc" placeholder="Описание" class="w-full rounded-lg p-3" rows="2"></textarea>
+                <button type="submit" class="btn-primary w-full py-3 rounded-lg font-bold">
+                    Добавить категорию
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script src="main.js"></script>
 </body>
-</html>
+</html>ы

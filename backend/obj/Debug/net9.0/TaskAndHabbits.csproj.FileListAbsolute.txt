@@ -89,7 +89,6 @@ C:\TaskAndHabbits\MarketEnot\backend\obj\Debug\net9.0\rjimswa.dswa.cache.json
 C:\TaskAndHabbits\MarketEnot\backend\obj\Debug\net9.0\rjsmrazor.dswa.cache.json
 C:\TaskAndHabbits\MarketEnot\backend\obj\Debug\net9.0\rjsmcshtml.dswa.cache.json
 C:\TaskAndHabbits\MarketEnot\backend\obj\Debug\net9.0\scopedcss\bundle\TaskAndHabbits.styles.css
-C:\TaskAndHabbits\MarketEnot\backend\obj\Debug\net9.0\compressed\0gi3xtunpg-2rzehkxgku.gz
 C:\TaskAndHabbits\MarketEnot\backend\obj\Debug\net9.0\staticwebassets.build.json
 C:\TaskAndHabbits\MarketEnot\backend\obj\Debug\net9.0\staticwebassets.build.json.cache
 C:\TaskAndHabbits\MarketEnot\backend\obj\Debug\net9.0\staticwebassets.development.json
