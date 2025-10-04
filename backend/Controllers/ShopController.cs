@@ -95,17 +95,23 @@ public class ShopController : ControllerBase
             {
                 var product = await _db.GetProductById(item.ProductId);
                 if (product == null || !product.IsAvailable)
-                    return BadRequest(new { success = false, error = $"Товар {item.ProductId} недоступен" });
+                return BadRequest(new { success = false, error = $"Товар {item.ProductId} недоступен" });
 
                 if (product.Stock < item.Quantity)
-                    return BadRequest(new { success = false, error = $"Недостаточно {product.Name} на складе" });
+                return BadRequest(new { success = false, error = $"Недостаточно {product.Name} на складе" });
 
-                totalPrice += product.Price * item.Quantity;
+                // ИСПРАВЛЕНО: Получаем товар со скидкой
+                var productsWithDiscount = await _db.GetProductsWithDiscounts();
+                var productWithDiscount = productsWithDiscount.FirstOrDefault(p => p.Id == item.ProductId);
+    
+                decimal actualPrice = productWithDiscount?.FinalPrice ?? product.Price;
+    
+                totalPrice += actualPrice * item.Quantity;
                 orderItems.Add(new OrderItem
                 {
                     ProductId = item.ProductId,
                     Quantity = item.Quantity,
-                    Price = product.Price
+                    Price = actualPrice  // ИСПРАВЛЕНО: используем финальную цену
                 });
             }
 

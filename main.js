@@ -104,7 +104,7 @@ function renderProducts() {
         return;
     }
     container.innerHTML = products.map((product, index) => `
-        <div class="product-card glass rounded-xl p-4 cursor-pointer" onclick="addToCart(${product.id})" style="animation-delay: ${index * 0.1}s">
+        <div class="product-card glass rounded-xl p-4 cursor-pointer" onclick="showProductCard(${product.id})" style="animation-delay: ${index * 0.1}s">
             ${product.imageUrl ? `<img src="${product.imageUrl}" class="w-full h-40 object-cover rounded-lg mb-3">` : '<div class="w-full h-40 bg-gradient-to-br from-orange-500/20 to-orange-600/20 rounded-lg mb-3 flex items-center justify-center text-5xl">📦</div>'}
             <h3 class="font-bold text-lg mb-1">${product.name}</h3>
             <p class="text-sm text-gray-400 mb-3 line-clamp-2">${product.description || ''}</p>
@@ -141,6 +141,16 @@ function renderCategories() {
 }
 
 async function showCategoryProducts(categoryId, categoryName) {
+    // Кэш для товаров категорий
+let categoryProductsCache = {};
+
+async function showCategoryProducts(categoryId, categoryName) {
+    // Проверяем кэш
+    if (categoryProductsCache[categoryId]) {
+        renderCachedCategoryProducts(categoryId, categoryName);
+        return;
+    }
+
     try {
         const response = await fetch(`${API_URL}/categories/${categoryId}/products`, {
             headers: {
@@ -150,30 +160,39 @@ async function showCategoryProducts(categoryId, categoryName) {
         });
         const data = await response.json();
         
-        document.getElementById('categoriesTab').style.display = 'none';
-        document.getElementById('categoryProductsView').style.display = 'block';
-        document.getElementById('categoryTitle').textContent = categoryName;
-        
-        const container = document.getElementById('categoryProductsList');
-        if (data.data.length === 0) {
-            container.innerHTML = '<p class="col-span-2 text-center text-gray-400 py-8">В этой категории пока нет товаров</p>';
-            return;
-        }
-        
-        container.innerHTML = data.data.map((product, index) => `
-            <div class="product-card glass rounded-xl p-4 cursor-pointer" onclick="addToCart(${product.id})" style="animation-delay: ${index * 0.1}s">
-                ${product.imageUrl ? `<img src="${product.imageUrl}" class="w-full h-40 object-cover rounded-lg mb-3">` : '<div class="w-full h-40 bg-gradient-to-br from-orange-500/20 to-orange-600/20 rounded-lg mb-3 flex items-center justify-center text-5xl">📦</div>'}
-                <h3 class="font-bold text-lg mb-1">${product.name}</h3>
-                <p class="text-sm text-gray-400 mb-3 line-clamp-2">${product.description || ''}</p>
-                <div class="flex justify-between items-center">
-                    <span class="text-xl font-bold text-orange-400">${product.price}₽</span>
-                    <span class="text-xs text-gray-500 bg-white/5 px-2 py-1 rounded-full">Осталось: ${product.stock}</span>
-                </div>
-            </div>
-        `).join('');
+        // Сохраняем в кэш
+        categoryProductsCache[categoryId] = data.data;
+        renderCachedCategoryProducts(categoryId, categoryName);
     } catch (error) {
         console.error('Ошибка загрузки товаров категории:', error);
     }
+}
+
+function renderCachedCategoryProducts(categoryId, categoryName) {
+    const categoryProducts = categoryProductsCache[categoryId];
+    
+    document.getElementById('categoriesTab').style.display = 'none';
+    document.getElementById('categoryProductsView').style.display = 'block';
+    document.getElementById('categoryTitle').textContent = categoryName;
+    
+    const container = document.getElementById('categoryProductsList');
+    if (categoryProducts.length === 0) {
+        container.innerHTML = '<p class="col-span-2 text-center text-gray-400 py-8">В этой категории пока нет товаров</p>';
+        return;
+    }
+    
+    container.innerHTML = categoryProducts.map((product, index) => `
+        <div class="product-card glass rounded-xl p-4 cursor-pointer" onclick="showProductCard(${product.id})" style="animation-delay: ${index * 0.1}s">
+            ${product.imageUrl ? `<img src="${product.imageUrl}" class="w-full h-40 object-cover rounded-lg mb-3">` : '<div class="w-full h-40 bg-gradient-to-br from-orange-500/20 to-orange-600/20 rounded-lg mb-3 flex items-center justify-center text-5xl">📦</div>'}
+            <h3 class="font-bold text-lg mb-1">${product.name}</h3>
+            <p class="text-sm text-gray-400 mb-3 line-clamp-2">${product.description || ''}</p>
+            <div class="flex justify-between items-center">
+                <span class="text-xl font-bold text-orange-400">${product.price}₽</span>
+                <span class="text-xs text-gray-500 bg-white/5 px-2 py-1 rounded-full">Осталось: ${product.stock}</span>
+            </div>
+        </div>
+    `).join('');
+}
 }
 
 function backToCategories() {
@@ -452,7 +471,51 @@ document.getElementById('addCategoryForm').addEventListener('submit', async (e) 
         tg.showAlert('❌ Ошибка добавления категории');
         console.error(error);
     }
+    
 });
+
+let selectedProduct = null;
+
+function showProductCard(productId) {
+    const product = products.find(p => p.id === productId);
+    if (!product) return;
+    
+    selectedProduct = product;
+    
+    // Заполняем карточку
+    document.getElementById('productCardName').textContent = product.name;
+    
+    const price = product.finalPrice || product.price;
+    const priceHtml = product.discountPercent > 0 
+        ? `<span class="line-through text-gray-500 text-xl">${product.price}₽</span> ${price}₽ <span class="text-sm bg-red-500 px-2 py-1 rounded-full">-${product.discountPercent}%</span>`
+        : `${price}₽`;
+    document.getElementById('productCardPrice').innerHTML = priceHtml;
+    
+    document.getElementById('productCardDescription').textContent = product.description || 'Нет описания';
+    document.getElementById('productCardStock').textContent = `В наличии: ${product.stock} шт.`;
+    
+    // Изображение
+    const imageContainer = document.getElementById('productCardImage');
+    if (product.imageUrl) {
+        imageContainer.innerHTML = `<img src="${product.imageUrl}" class="w-full h-full object-cover">`;
+    } else {
+        imageContainer.innerHTML = '<div class="text-6xl">📦</div>';
+    }
+    
+    document.getElementById('productCard').style.display = 'block';
+}
+
+function closeProductCard() {
+    document.getElementById('productCard').style.display = 'none';
+    selectedProduct = null;
+}
+
+function addToCartFromCard() {
+    if (selectedProduct) {
+        addToCart(selectedProduct.id);
+        tg.showAlert('Товар добавлен в корзину');
+    }
+}
 
 // Загружаем данные при старте
 loadProducts();
