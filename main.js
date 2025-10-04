@@ -1,5 +1,5 @@
 const API_URL = 'https://88aa94f4bf72.ngrok-free.app/api';
-const ADMIN_ID = 464350533; // ЗАМЕНИ НА СВОЙ TELEGRAM ID
+const ADMIN_IDS = [464350533, 123456789]; // Добавь ID второго админа
 
 let tg = window.Telegram.WebApp;
 let cart = [];
@@ -15,7 +15,7 @@ tg.expand();
 
 // Проверка админа
 const userId = tg.initDataUnsafe.user?.id || ADMIN_ID;
-isAdmin = (userId === ADMIN_ID);
+isAdmin = ADMIN_IDS.includes(userId);
 
 if (isAdmin) {
     document.getElementById('adminButton').style.display = 'block';

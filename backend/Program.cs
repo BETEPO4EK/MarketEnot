@@ -69,6 +69,8 @@ public class Host
     private readonly ITelegramBotClient _bot;
     private readonly DatabaseService _db;
 
+    private static readonly long[] ADMIN_IDS = { 464350533, 123456789 };
+
     private Dictionary<long, string> adminStates = new();
 
     public Host(ITelegramBotClient bot, DatabaseService db)
@@ -97,8 +99,8 @@ public class Host
         string command = update.Message.Text ?? "";
         long chatId = update.Message.Chat.Id;
         
-        long ADMIN_ID = 464350533; // <-- получи через /myid
-        bool isAdmin = chatId == ADMIN_ID;
+        //long ADMIN_ID = 464350533; // <-- получи через /myid
+        bool isAdmin = ADMIN_IDS.Contains(chatId);
 
         switch (command)
         {

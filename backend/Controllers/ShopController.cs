@@ -80,78 +80,90 @@ public class ShopController : ControllerBase
 
     // Создать заказ
     [HttpPost("orders")]
-    public async Task<IActionResult> CreateOrder([FromBody] CreateOrderRequest request)
+public async Task<IActionResult> CreateOrder([FromBody] CreateOrderRequest request)
+{
+    try
     {
-        try
+        // Создаём юзера если его нет
+        await _db.GetOrCreateUser(request.TelegramId, null, null, null);
+
+        // ИСПРАВЛЕНО: Получаем все товары со скидками один раз
+        var allProductsWithDiscounts = await _db.GetProductsWithDiscounts();
+        
+        decimal totalPrice = 0;
+        var orderItems = new List<OrderItem>();
+
+        foreach (var item in request.Items)
         {
-            // Создаём юзера если его нет
-            await _db.GetOrCreateUser(request.TelegramId, null, null, null);
-
-            // Проверяем что все товары существуют и доступны
-            decimal totalPrice = 0;
-            var orderItems = new List<OrderItem>();
-
-            foreach (var item in request.Items)
-            {
-                var product = await _db.GetProductById(item.ProductId);
-                if (product == null || !product.IsAvailable)
+            var productWithDiscount = allProductsWithDiscounts.FirstOrDefault(p => p.Id == item.ProductId);
+            
+            if (productWithDiscount == null || !productWithDiscount.IsAvailable)
                 return BadRequest(new { success = false, error = $"Товар {item.ProductId} недоступен" });
 
-                if (product.Stock < item.Quantity)
-                return BadRequest(new { success = false, error = $"Недостаточно {product.Name} на складе" });
+            if (productWithDiscount.Stock < item.Quantity)
+                return BadRequest(new { success = false, error = $"Недостаточно {productWithDiscount.Name} на складе" });
 
-                // ИСПРАВЛЕНО: Получаем товар со скидкой
-                var productsWithDiscount = await _db.GetProductsWithDiscounts();
-                var productWithDiscount = productsWithDiscount.FirstOrDefault(p => p.Id == item.ProductId);
-    
-                decimal actualPrice = productWithDiscount?.FinalPrice ?? product.Price;
-    
-                totalPrice += actualPrice * item.Quantity;
-                orderItems.Add(new OrderItem
-                {
-                    ProductId = item.ProductId,
-                    Quantity = item.Quantity,
-                    Price = actualPrice  // ИСПРАВЛЕНО: используем финальную цену
-                });
-            }
-
-            // Создаём заказ
-            var orderId = await _db.CreateOrder(
-                request.TelegramId,
-                totalPrice,
-                request.Phone,
-                request.Address,
-                request.Comment
-            );
-
-            // Добавляем товары в заказ
-            await _db.AddOrderItems(orderId, orderItems);
-
-            // Получаем полную информацию о заказе
-            var order = await _db.GetOrderById(orderId);
-            var items = await _db.GetOrderItems(orderId);
-
-            // Отправляем уведомления
-            var bot = HttpContext.RequestServices.GetRequiredService<ITelegramBotClient>();
-            await SendOrderNotification(bot, orderId, order!, items);
-            await SendOrderConfirmationToUser(bot, request.TelegramId, orderId, order!);
-
-            return Ok(new
+            decimal actualPrice = productWithDiscount.FinalPrice > 0 ? productWithDiscount.FinalPrice : productWithDiscount.Price;
+            
+            totalPrice += actualPrice * item.Quantity;
+            orderItems.Add(new OrderItem
             {
-                success = true,
-                data = new
-                {
-                    orderId = orderId,
-                    order = order,
-                    items = items
-                }
+                ProductId = item.ProductId,
+                Quantity = item.Quantity,
+                Price = actualPrice
             });
         }
-        catch (Exception ex)
+
+        // Создаём заказ
+        var orderId = await _db.CreateOrder(
+            request.TelegramId,
+            totalPrice,
+            request.Phone,
+            request.Address,
+            request.Comment
+        );
+
+        // Добавляем товары в заказ
+        await _db.AddOrderItems(orderId, orderItems);
+
+        // Получаем полную информацию о заказе
+        var order = await _db.GetOrderById(orderId);
+        var items = await _db.GetOrderItems(orderId);
+
+        // Отправляем уведомления
+        var bot = HttpContext.RequestServices.GetRequiredService<ITelegramBotClient>();
+        
+        // Отправляем в фоне чтобы не блокировать ответ
+        _ = Task.Run(async () =>
         {
-            return StatusCode(500, new { success = false, error = ex.Message });
-        }
+            try
+            {
+                await SendOrderNotification(bot, orderId, order!, items);
+                await SendOrderConfirmationToUser(bot, request.TelegramId, orderId, order!);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Ошибка отправки уведомлений: {ex.Message}");
+            }
+        });
+
+        return Ok(new
+        {
+            success = true,
+            data = new
+            {
+                orderId = orderId,
+                order = order,
+                items = items
+            }
+        });
     }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Ошибка создания заказа: {ex.Message}");
+        return StatusCode(500, new { success = false, error = ex.Message });
+    }
+}
 
     // Получить заказы пользователя
     [HttpGet("orders/{telegramId}")]
