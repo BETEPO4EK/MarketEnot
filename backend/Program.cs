@@ -383,7 +383,7 @@ public static class OrderNotifier
             message += $"• {item.ProductName} x{item.Quantity} = {item.Price * item.Quantity}₽\n";
         }
 
-        message += "\n💳 Реквизиты для оплаты:\nСБП: +7 (XXX) XXX-XX-XX";
+        message += "\n💳 Реквизиты для оплаты:\nСБП: +7 (987) 759-66-43";
 
         await bot.SendMessage(adminChatId, message);
     }
